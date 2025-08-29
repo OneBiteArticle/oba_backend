@@ -21,7 +21,7 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    private String refreshToken; // 리프레시 토큰 저장
+    private String refreshToken;
 
     @Builder
     public Member(String username, String password) {
