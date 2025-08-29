@@ -19,6 +19,7 @@ public class AuthController {
 
     /**
      * 회원가입 API
+     *
      * @param signUpRequest 아이디, 비밀번호
      * @return 성공 메시지
      */
@@ -30,6 +31,7 @@ public class AuthController {
 
     /**
      * 회원 탈퇴 API
+     *
      * @return 성공 메시지
      */
     @DeleteMapping("/withdraw")
@@ -40,6 +42,7 @@ public class AuthController {
 
     /**
      * 로그인 API
+     *
      * @param loginRequest 아이디, 비밀번호
      * @return Access Token, Refresh Token
      */
@@ -51,6 +54,7 @@ public class AuthController {
 
     /**
      * 토큰 재발급 API
+     *
      * @param reissueRequest 기존 Refresh Token
      * @return 새로운 Access Token, Refresh Token
      */
@@ -62,6 +66,7 @@ public class AuthController {
 
     /**
      * 로그아웃 API
+     *
      * @return 성공 메시지
      */
     @PostMapping("/logout")
