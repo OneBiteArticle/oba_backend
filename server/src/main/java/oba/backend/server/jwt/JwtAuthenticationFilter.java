@@ -24,7 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-    // 실제 필터링 로직을 수행하는 메소드
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 1. Request Header에서 JWT 토큰 추출
@@ -35,24 +34,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰이 유효할 경우 토큰에서 Authentication 객체를 받아옴
             Authentication authentication = jwtProvider.getAuthentication(token);
             // SecurityContext 에 Authentication 객체를 저장
-            // 이 과정을 통해 Spring Security는 현재 요청을 처리하는 스레드에서 사용자가 인증되었다고 인식합니다.
+            // 이 과정을 통해 Spring Security는 현재 요청을 처리하는 스레드에서 사용자가 인증되었다고 인식함
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        // 다음 필터로 제어를 넘깁니다.
+        // 다음 필터로 제어를 넘김
         filterChain.doFilter(request, response);
     }
 
     /**
      * Request Header에서 토큰 정보를 추출하는 메소드
+     *
      * @param request HttpServletRequest 객체
      * @return 추출된 토큰 문자열
      */
     private String resolveToken(HttpServletRequest request) {
-        // "Authorization" 헤더에서 토큰을 가져옵니다.
+        // "Authorization" 헤더에서 토큰을 가져옴
         String bearerToken = request.getHeader("Authorization");
-        // 토큰이 존재하고 "Bearer "로 시작하는지 확인합니다.
+        // 토큰이 존재하고 "Bearer "로 시작하는지 확인
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            // "Bearer " 접두어를 제거하고 순수한 토큰 값만 반환합니다.
+            // "Bearer " 접두어를 제거하고 순수한 토큰 값만 반환
             return bearerToken.substring(7);
         }
         return null;
