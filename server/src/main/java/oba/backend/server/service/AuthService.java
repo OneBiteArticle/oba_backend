@@ -24,7 +24,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    // AuthenticationManagerBuilder 대신 AuthenticationManager를 직접 주입받습니다.
+    // AuthenticationManagerBuilder 대신 AuthenticationManager를 직접 주입
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -43,18 +43,18 @@ public class AuthService {
 
     @Transactional
     public void deleteMember() {
-        // 1. SecurityContext에서 현재 인증된 사용자의 username을 가져옵니다.
+        // 1. SecurityContext에서 현재 인증된 사용자의 username을 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
             throw new RuntimeException("인증 정보가 없는 요청입니다.");
         }
         String username = authentication.getName();
 
-        // 2. DB에서 해당 사용자를 찾아옵니다.
+        // 2. DB에서 해당 사용자를 찾아옴
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        // 3. 사용자를 DB에서 삭제합니다.
+        // 3. 사용자를 DB에서 삭제
         memberRepository.delete(member);
     }
 
@@ -63,7 +63,7 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
 
-        // 이제 authenticationManager를 직접 사용하여 인증합니다.
+        // 이제 authenticationManager를 직접 사용하여 인증
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
         TokenResponse tokenResponse = jwtProvider.generateToken(authentication);
@@ -75,7 +75,6 @@ public class AuthService {
         return tokenResponse;
     }
 
-    // reissue 메소드는 변경사항 없습니다.
     @Transactional
     public TokenResponse reissue(String refreshToken) {
         if (!jwtProvider.validateToken(refreshToken)) {
@@ -95,15 +94,15 @@ public class AuthService {
 
     @Transactional
     public void logout() {
-        // 1. SecurityContext에서 현재 인증된 사용자의 정보를 가져옵니다.
+        // 1. SecurityContext에서 현재 인증된 사용자의 정보를 가져옴
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getName() == null) {
-            // 이 경우는 보통 JwtAuthenticationFilter에서 토큰이 없을 때 걸러지지만, 안전을 위해 추가합니다.
+            // 이 경우는 보통 JwtAuthenticationFilter에서 토큰이 없을 때 걸러지지만, 안전을 위해 추가
             throw new RuntimeException("인증 정보가 없는 요청입니다.");
         }
         String username = authentication.getName();
 
-        // 2. DB에서 해당 사용자를 찾아 Refresh Token을 null로 설정하여 무효화합니다.
+        // 2. DB에서 해당 사용자를 찾아 Refresh Token을 null로 설정하여 무효화
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
