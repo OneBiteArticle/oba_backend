@@ -36,7 +36,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 각 테스트가 실행되기 전에 공통적으로 사용할 회원가입 데이터를 미리 준비합니다.
+        // 각 테스트가 실행되기 전에 공통적으로 사용할 회원가입 데이터를 미리 준비
         signUpRequest = new SignUpRequest("testuser", "Password123!");
     }
 
@@ -50,13 +50,13 @@ class AuthServiceTest {
         authService.signUp(signUpRequest);
 
         // then (결과는 이래야 한다)
-        // DB에서 방금 가입한 사용자를 찾는다.
+        // DB에서 방금 가입한 사용자를 찾음
         Member foundMember = memberRepository.findByUsername("testuser")
                 .orElseThrow(() -> new AssertionError("테스트 실패: 사용자를 찾을 수 없습니다."));
 
-        // 사용자 이름이 일치하는지 확인한다.
+        // 사용자 이름이 일치하는지 확인
         assertThat(foundMember.getUsername()).isEqualTo("testuser");
-        // 비밀번호가 암호화되어 저장되었는지 확인한다.
+        // 비밀번호가 암호화되어 저장되었는지 확인
         assertTrue(passwordEncoder.matches("Password123!", foundMember.getPassword()));
     }
 
@@ -68,12 +68,12 @@ class AuthServiceTest {
         authService.signUp(signUpRequest);
 
         // when & then
-        // 똑같은 아이디로 다시 가입을 시도하면 RuntimeException이 발생하는지 확인한다.
+        // 똑같은 아이디로 다시 가입을 시도하면 RuntimeException이 발생하는지 확인
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             authService.signUp(signUpRequest);
         });
 
-        // 예외 메시지가 "이미 사용 중인 아이디입니다."와 일치하는지 확인한다.
+        // 예외 메시지가 "이미 사용 중인 아이디입니다."와 일치하는지 확인
         assertThat(exception.getMessage()).isEqualTo("이미 사용 중인 아이디입니다.");
     }
 
@@ -82,7 +82,7 @@ class AuthServiceTest {
     @DisplayName("로그인 성공: 올바른 아이디와 비밀번호로 로그인하면 토큰이 발급된다.")
     void login_success() {
         // given
-        // 먼저 회원가입을 시켜놓는다.
+        // 먼저 회원가입을 시켜놓음
         authService.signUp(signUpRequest);
         LoginRequest loginRequest = new LoginRequest("testuser", "Password123!");
 
@@ -90,12 +90,12 @@ class AuthServiceTest {
         TokenResponse tokenResponse = authService.login(loginRequest);
 
         // then
-        // 토큰이 정상적으로 발급되었는지 확인한다.
+        // 토큰이 정상적으로 발급되었는지 확인
         assertThat(tokenResponse).isNotNull();
         assertThat(tokenResponse.accessToken()).isNotBlank();
         assertThat(tokenResponse.refreshToken()).isNotBlank();
 
-        // DB에 Refresh Token이 잘 저장되었는지 확인한다.
+        // DB에 Refresh Token이 잘 저장되었는지 확인
         Member member = memberRepository.findByUsername("testuser").get();
         assertThat(member.getRefreshToken()).isEqualTo(tokenResponse.refreshToken());
     }
@@ -109,7 +109,7 @@ class AuthServiceTest {
 
         // when & then
         // assertThrows를 사용하여 BadCredentialsException이 발생하는 것이
-        // 이 테스트의 '성공' 조건임을 명시합니다.
+        // 이 테스트의 '성공' 조건임을 명시
         assertThrows(BadCredentialsException.class, () -> {
             authService.login(loginRequest);
         });
@@ -119,29 +119,29 @@ class AuthServiceTest {
     @DisplayName("로그아웃 성공: 로그아웃 요청 시 DB의 Refresh Token이 null로 변경된다.")
     void logout_success() {
         // given
-        // 먼저 사용자를 회원가입시키고 로그인하여 Refresh Token을 DB에 저장합니다.
+        // 먼저 사용자를 회원가입시키고 로그인하여 Refresh Token을 DB에 저장
         authService.signUp(signUpRequest);
         LoginRequest loginRequest = new LoginRequest("testuser", "Password123!");
         authService.login(loginRequest);
 
-        // DB에 Refresh Token이 저장되었는지 먼저 확인합니다.
+        // DB에 Refresh Token이 저장되었는지 먼저 확인
         Member memberBeforeLogout = memberRepository.findByUsername("testuser").get();
         assertThat(memberBeforeLogout.getRefreshToken()).isNotNull();
 
-        // 로그아웃을 요청할 사용자의 인증 정보를 SecurityContextHolder에 설정합니다.
-        // 실제 컨트롤러에서는 JwtAuthenticationFilter가 이 역할을 자동으로 해줍니다.
+        // 로그아웃을 요청할 사용자의 인증 정보를 SecurityContextHolder에 설정
+        // 실제 컨트롤러에서는 JwtAuthenticationFilter가 이 역할을 자동으로 해준다.
         var authentication = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                 "testuser", null, java.util.Collections.singletonList(() -> "ROLE_USER"));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
 
         // when
-        // 로그아웃 서비스를 호출합니다.
+        // 로그아웃 서비스를 호출
         authService.logout();
 
 
         // then
-        // 로그아웃 후 DB에서 사용자를 다시 조회하여 Refresh Token이 null이 되었는지 확인합니다.
+        // 로그아웃 후 DB에서 사용자를 다시 조회하여 Refresh Token이 null이 되었는지 확인
         Member memberAfterLogout = memberRepository.findByUsername("testuser").get();
         assertThat(memberAfterLogout.getRefreshToken()).isNull();
     }
