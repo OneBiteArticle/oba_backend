@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
-    private final JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider; // (1) JwtProvider를 주입받도록 추가
 
     @Bean
     public PasswordEncoder passwordEncoder() {
