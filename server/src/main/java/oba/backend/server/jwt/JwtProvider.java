@@ -1,10 +1,10 @@
 package oba.backend.server.jwt;
 
-import oba.backend.server.dto.AuthDto.TokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import oba.backend.server.dto.TokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -81,7 +81,7 @@ public class JwtProvider {
     }
 
 
-    // 토큰 정보를 검증 메서드
+    // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

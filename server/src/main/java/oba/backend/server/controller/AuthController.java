@@ -2,10 +2,10 @@ package oba.backend.server.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.dto.AuthDto.LoginRequest;
-import oba.backend.server.dto.AuthDto.ReissueRequest;
-import oba.backend.server.dto.AuthDto.SignUpRequest;
-import oba.backend.server.dto.AuthDto.TokenResponse;
+import oba.backend.server.dto.LoginRequest;
+import oba.backend.server.dto.ReissueRequest;
+import oba.backend.server.dto.SignUpRequest;
+import oba.backend.server.dto.TokenResponse;
 import oba.backend.server.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
