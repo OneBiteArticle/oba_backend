@@ -40,6 +40,15 @@ OBA Backend는 매일 최신 IT 기사를 제공하고,
 - **Monitoring**: Prometheus + Grafana
 
 
+
+## 📌 Git 협업 전략
+- [Branch 전략](https://www.notion.so/Branch-25ea97372b208074adf5ff0ac7c64afe?source=copy_link)
+- [Pull Request 전략](https://www.notion.so/Pull-Request-25ea97372b208032a08cef93637f484c?source=copy_link)
+- [Git 이슈 컨벤션](https://www.notion.so/Git-25ea97372b20804d86ffd6bca678856e?source=copy_link)
+- [Git 커밋 컨벤션](https://www.notion.so/Git-25ea97372b208098b112c76292b65739?source=copy_link)
+
+
+
 이 프로젝트에서 사용되는 기술 스택과 구현 구조에 대한 개발 문서는 Notion에 정리되어 있습니다.
 
 👉 기술 개발 문서 보기: [Notion 기술 개발 페이지 바로가기](https://www.notion.so/236a97372b20803699aee87278b229e7?source=copy_link)
