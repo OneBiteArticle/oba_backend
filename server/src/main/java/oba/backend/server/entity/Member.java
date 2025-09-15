@@ -21,12 +21,9 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- [변경 1] username -> email ---
-    // email을 고유한 로그인 ID로 사용합니다.
     @Column(unique = true, nullable = false)
     private String email;
 
-    // --- [추가] nickname 필드 추가 ---
     @Column(nullable = false)
     private String nickname;
 
@@ -41,8 +38,6 @@ public class Member extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
-    // --- [변경 2] Builder 수정 ---
-    // 생성 시 email과 nickname을 받도록 수정합니다.
     @Builder
     public Member(String email, String nickname, String password, Role role) {
         this.email = email;
