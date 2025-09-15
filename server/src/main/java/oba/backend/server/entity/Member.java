@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Entity
 @Getter
@@ -18,12 +19,6 @@ import java.time.LocalDateTime;
 @Where(clause = "deleted_at IS NULL")
 @Table(
         name = "member",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_member_email_deleted_at",
-                        columnNames = {"email", "deleted_at"}
-                )
-        },
         indexes = {
                 @Index(name = "idx_member_email", columnList = "email"),
                 @Index(name = "idx_member_refresh_token", columnList = "refresh_token")
@@ -35,7 +30,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 254)
+    @Column(nullable = false, length = 254, unique = true)
     private String email;
 
     @Column(nullable = false, length = 50)
@@ -66,5 +61,12 @@ public class Member extends BaseEntity {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void normalize() {
+        if (this.email != null) this.email = this.email.trim().toLowerCase(Locale.ROOT);
+        if (this.nickname != null) this.nickname = this.nickname.trim();
     }
 }
