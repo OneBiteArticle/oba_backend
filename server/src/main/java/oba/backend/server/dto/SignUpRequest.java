@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-// 회원가입 요청 DTO
 public record SignUpRequest(
         @NotBlank(message = "이메일은 필수 입력 값입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
