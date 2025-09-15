@@ -1,5 +1,6 @@
 package oba.backend.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,28 +15,45 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
-@Where(clause = "deleted_at is NULL")
+@Where(clause = "deleted_at IS NULL")
+@Table(
+        name = "member",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_member_email_deleted_at",
+                        columnNames = {"email", "deleted_at"}
+                )
+        },
+        indexes = {
+                @Index(name = "idx_member_email", columnList = "email"),
+                @Index(name = "idx_member_refresh_token", columnList = "refresh_token")
+        }
+)
 public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, length = 254)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String nickname;
 
-    @Column(nullable = false)
+    @JsonIgnore
+    @Column(nullable = false, length = 60)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private Role role;
 
+    @JsonIgnore
+    @Column(length = 512)
     private String refreshToken;
 
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
