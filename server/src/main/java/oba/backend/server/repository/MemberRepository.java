@@ -14,7 +14,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByRefreshToken(String refreshToken);
 
     /**
-     * --- [변경 3] findByUsernameOrThrow -> findByEmailOrThrow ---
      * email로 Member를 찾아 반환하고, 없으면 예외를 발생시키는 default 메소드
      *
      * @param email 찾고자 하는 사용자의 email
