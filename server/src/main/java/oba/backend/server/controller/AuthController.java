@@ -74,4 +74,5 @@ public class AuthController {
         authService.logout();
         return ResponseEntity.ok("성공적으로 로그아웃되었습니다.");
     }
+
 }
