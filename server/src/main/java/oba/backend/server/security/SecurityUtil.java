@@ -31,4 +31,5 @@ public class SecurityUtil {
         String email = getCurrentUsername();
         return memberRepository.findByEmailOrThrow(email);
     }
+
 }
