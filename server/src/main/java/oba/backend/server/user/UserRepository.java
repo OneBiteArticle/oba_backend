@@ -1,4 +1,4 @@
-package oba.backend.server.domain.user;
+package oba.backend.server.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
