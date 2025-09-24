@@ -5,48 +5,52 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
-/**
- * JWT 인증 필터
- * 클라이언트 요청 시 JWT 인증을 하기 위해 만든 필터입니다.
- * OncePerRequestFilter를 상속받아 요청당 한 번만 실행되도록 보장합니다.
- */
-@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+    private static final Set<String> WHITELIST = Set.of(
+            "/", "/error", "/public/**", "/login", "/login.html",
+            "/oauth2/**", "/actuator/**", "/css/**", "/js/**", "/images/**"
+    );
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return WHITELIST.stream().anyMatch(p -> PATH_MATCHER.match(p, uri));
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        String header = request.getHeader("Authorization");
+
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+
+            if (jwtProvider.validate(token)) {
+                String subject = jwtProvider.getSubject(token);
+
+                var auth = new UsernamePasswordAuthenticationToken(
+                        subject, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                );
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
         filterChain.doFilter(request, response);
     }
-
-    /**
-     * Request Header에서 토큰 정보를 추출하는 메소드
-     *
-     * @param request HttpServletRequest 객체
-     * @return 추출된 토큰 문자열
-     */
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
 }

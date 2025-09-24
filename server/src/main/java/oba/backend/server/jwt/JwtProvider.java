@@ -1,109 +1,67 @@
-package oba.backend.server.jwt;
+package oba.backend.server.common.jwt;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
-import oba.backend.server.dto.TokenResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Base64;
 import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-@Slf4j
 @Component
 public class JwtProvider {
 
     private final Key key;
-    private final long accessTokenExpirationMs;
-    private final long refreshTokenExpirationMs;
+    private final long accessValidityMs;
+    private final long refreshValidityMs;
 
     public JwtProvider(
-            @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.access-token-expiration-ms}") long accessTokenExpirationMs,
-            @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenExpirationMs) {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.accessTokenExpirationMs = accessTokenExpirationMs;
-        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+            @Value("${jwt.secret}") String secretBase64,
+            @Value("${jwt.access-token-expiration-ms:1800000}") long accessValidityMs,      // 30분
+            @Value("${jwt.refresh-token-expiration-ms:604800000}") long refreshValidityMs   // 7일
+    ) {
+        this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretBase64));
+        this.accessValidityMs = accessValidityMs;
+        this.refreshValidityMs = refreshValidityMs;
     }
 
-    // 인증 정보를 기반으로 Access Token과 Refresh Token 생성
-    public TokenResponse generateToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    public String createAccessToken(String subject, Map<String, Object> claims) {
+        return buildToken(subject, claims, accessValidityMs);
+    }
 
-        long now = (new Date()).getTime();
+    public String createRefreshToken(String subject) {
+        return buildToken(subject, Map.of("type", "refresh"), refreshValidityMs);
+    }
 
-        // Access Token 생성
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authorities)
-                .setExpiration(new Date(now + accessTokenExpirationMs))
+    private String buildToken(String subject, Map<String, Object> claims, long validity) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(subject)
+                .addClaims(claims)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + validity))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        // Refresh Token 생성
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + refreshTokenExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-
-        return new TokenResponse("Bearer", accessToken, refreshToken);
     }
 
-    // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
-    public Authentication getAuthentication(String accessToken) {
-        Claims claims = parseClaims(accessToken);
-
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-    }
-
-
-    // 토큰 정보를 검증하는 메서드
-    public boolean validateToken(String token) {
+    public boolean validate(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token", e);
-        } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token", e);
-        } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty.", e);
-        }
-        return false;
-    }
-
-    private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
+        } catch (Exception e) {
+            return false;
         }
     }
 
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public String getSubject(String token) {
+        return getClaims(token).getSubject();
+    }
 }
