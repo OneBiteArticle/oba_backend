@@ -35,4 +35,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                 Collections.singletonList(grantedAuthority)
         );
     }
+
 }
