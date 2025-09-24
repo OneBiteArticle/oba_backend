@@ -19,5 +19,4 @@ public class TestOAuth2Utils {
                 .clientName("Test " + registrationId)
                 .build();
     }
-
 }
