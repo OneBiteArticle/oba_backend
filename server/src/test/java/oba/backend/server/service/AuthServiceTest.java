@@ -116,4 +116,5 @@ class AuthServiceTest {
         Member memberAfterLogout = memberRepository.findByEmail("testuser@naver.com").get();
         assertThat(memberAfterLogout.getRefreshToken()).isNull();
     }
+
 }
