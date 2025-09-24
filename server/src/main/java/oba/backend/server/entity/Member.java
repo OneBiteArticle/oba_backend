@@ -69,4 +69,6 @@ public class Member extends BaseEntity {
         if (this.email != null) this.email = this.email.trim().toLowerCase(Locale.ROOT);
         if (this.nickname != null) this.nickname = this.nickname.trim();
     }
+
 }
+
