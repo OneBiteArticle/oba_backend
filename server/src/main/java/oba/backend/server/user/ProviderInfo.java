@@ -1,4 +1,4 @@
-package oba.backend.server.domain.user;
+package oba.backend.server.user;
 
 public enum ProviderInfo {
     GOOGLE, KAKAO, NAVER
