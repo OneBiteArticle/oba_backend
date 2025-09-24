@@ -87,4 +87,5 @@ public class AuthService {
         Member member = securityUtil.getCurrentMember();
         member.updateRefreshToken(null);
     }
+
 }
