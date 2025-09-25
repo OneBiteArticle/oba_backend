@@ -5,12 +5,14 @@ import oba.backend.server.domain.user.ProviderInfo;
 import oba.backend.server.domain.user.Role;
 import oba.backend.server.domain.user.User;
 import oba.backend.server.domain.user.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,6 +21,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
+    @SuppressWarnings("unchecked") // 카카오/네이버 attributes 캐스팅 경고 억제
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -38,10 +41,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
             case "kakao" -> {
                 providerUserId = String.valueOf(attributes.get("id"));
-
                 Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
                 if (kakaoAccount != null) {
-                    email = (String) kakaoAccount.get("email"); // 동의 안 하면 null
+                    email = (String) kakaoAccount.get("email");
                     Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                     if (profile != null) {
                         name = (String) profile.get("nickname");
@@ -59,6 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인 타입: " + registrationId);
         }
 
+        // ✅ 고유 식별자 (중복 방지)
         String identifier = registrationId + ":" + providerUserId;
 
         User user = userRepository.findByIdentifier(identifier)
@@ -71,6 +74,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.updateInfo(email, name, picture);
         userRepository.save(user);
 
-        return new UserPrincipal(identifier, email, attributes, registrationId);
+        // ✅ ROLE_USER 권한 부여
+        return new UserPrincipal(
+                identifier,
+                email,
+                attributes,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
     }
 }
