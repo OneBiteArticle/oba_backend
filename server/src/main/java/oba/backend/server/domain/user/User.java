@@ -1,41 +1,36 @@
 package oba.backend.server.domain.user;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import oba.backend.server.entity.BaseEntity;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@Table(name = "users", indexes = {
-        @Index(name = "uk_users_identifier", columnList = "identifier", unique = true)
-})
-public class User {
+public class User extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * 고유 식별자: "provider:providerUserId"
-     * 예) "kakao:123456", "naver:AbCdE", "google:1081..."
-     */
-    @Column(nullable = false, unique = true, length = 128)
-    private String identifier;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @Enumerated(EnumType.STRING)
-    private ProviderInfo provider;
+    @Column(nullable = false, unique = true)
+    private String identifier; // ✅ CustomOAuth2UserService 에서 사용
 
     private String email;
     private String name;
     private String picture;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProviderInfo provider;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    // ✅ 정보 업데이트 메서드 추가
     public void updateInfo(String email, String name, String picture) {
         this.email = email;
         this.name = name;
