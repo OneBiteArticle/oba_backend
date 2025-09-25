@@ -59,7 +59,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인 타입: " + registrationId);
         }
 
-        // ✅ 고유 식별자
         String identifier = registrationId + ":" + providerUserId;
 
         User user = userRepository.findByIdentifier(identifier)
@@ -74,5 +73,4 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         return new UserPrincipal(identifier, email, attributes, registrationId);
     }
-
 }
