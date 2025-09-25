@@ -18,7 +18,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -35,3 +35,24 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Gradle ###
+/gradle.properties
+
+### Logs & Temp ###
+*.log
+*.tmp
+*.swp
+
+### OS-specific ###
+.DS_Store
+Thumbs.db
+
+### 🔒 민감정보 (환경설정) ###
+# application 설정 파일 (민감정보 포함 가능)
+src/main/resources/application.yml
+src/main/resources/application.properties
+
+# 로컬 환경변수 파일 (.env 등)
+.env
+.env.local
