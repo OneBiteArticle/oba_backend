@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -22,8 +23,9 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
-        this.attributes = attributes;
-        this.authorities = authorities;
+        // ✅ null 방지 처리 (빈 컬렉션/맵으로 초기화)
+        this.attributes = (attributes == null) ? Map.of() : Map.copyOf(attributes);
+        this.authorities = (authorities == null) ? List.of() : List.copyOf(authorities);
     }
 
     @Override
@@ -43,7 +45,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return null; // 소셜 로그인 사용 시 패스워드 불필요
     }
 
     @Override
@@ -52,14 +54,22 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }
