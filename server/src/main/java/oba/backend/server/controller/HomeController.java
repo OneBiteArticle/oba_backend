@@ -21,7 +21,6 @@ public class HomeController {
     public String login(@AuthenticationPrincipal OAuth2User user,
                         HttpServletResponse resp,
                         Model model) {
-
         // 뒤로가기 캐시 방지(선택)
         resp.setHeader("Cache-Control", "no-store, must-revalidate");
         resp.setHeader("Pragma", "no-cache");
