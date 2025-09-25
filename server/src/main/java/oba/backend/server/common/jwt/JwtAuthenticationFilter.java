@@ -1,4 +1,4 @@
-package oba.backend.server.jwt;
+package oba.backend.server.common.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

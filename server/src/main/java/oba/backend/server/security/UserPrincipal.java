@@ -83,4 +83,5 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

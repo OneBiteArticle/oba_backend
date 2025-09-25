@@ -1,10 +1,10 @@
 package oba.backend.server.security;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.user.ProviderInfo;
-import oba.backend.server.user.Role;
-import oba.backend.server.user.User;
-import oba.backend.server.user.UserRepository;
+import oba.backend.server.domain.user.ProviderInfo;
+import oba.backend.server.domain.user.Role;
+import oba.backend.server.domain.user.User;
+import oba.backend.server.domain.user.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -59,6 +59,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             default -> throw new OAuth2AuthenticationException("지원하지 않는 로그인 타입: " + registrationId);
         }
 
+        // ✅ 고유 식별자
         String identifier = registrationId + ":" + providerUserId;
 
         User user = userRepository.findByIdentifier(identifier)

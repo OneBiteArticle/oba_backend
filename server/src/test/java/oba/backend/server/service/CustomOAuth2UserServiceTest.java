@@ -1,11 +1,10 @@
 package oba.backend.server.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import oba.backend.server.domain.user.User;
+import oba.backend.server.domain.user.UserRepository;
+import oba.backend.server.domain.user.ProviderInfo;
+import oba.backend.server.domain.user.Role;
 import oba.backend.server.security.CustomOAuth2UserService;
-import oba.backend.server.user.ProviderInfo;
-import oba.backend.server.user.Role;
-import oba.backend.server.user.User;
-import oba.backend.server.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -16,6 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class CustomOAuth2UserServiceTest {
@@ -92,4 +92,5 @@ class CustomOAuth2UserServiceTest {
         assertThat(savedUser.getProvider()).isEqualTo(ProviderInfo.GOOGLE);
         assertThat(savedUser.getRole()).isEqualTo(Role.USER);
     }
+
 }

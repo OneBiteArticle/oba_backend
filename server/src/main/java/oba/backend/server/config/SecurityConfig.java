@@ -28,11 +28,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            ClientRegistrationRepository repos) throws Exception {
-        // 기본 인가요청 리졸버
         DefaultOAuth2AuthorizationRequestResolver baseResolver =
                 new DefaultOAuth2AuthorizationRequestResolver(repos, "/oauth2/authorization");
 
-        // 추가 파라미터 주입용 커스텀 리졸버
         OAuth2AuthorizationRequestResolver customResolver = new OAuth2AuthorizationRequestResolver() {
             @Override
             public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
@@ -49,12 +47,12 @@ public class SecurityConfig {
             private OAuth2AuthorizationRequest customize(HttpServletRequest request,
                                                          OAuth2AuthorizationRequest req) {
                 String uri = request.getRequestURI();
-                String registrationId = uri.substring(uri.lastIndexOf('/') + 1); // google|kakao|naver
+                String registrationId = uri.substring(uri.lastIndexOf('/') + 1);
 
                 Map<String, Object> params = new LinkedHashMap<>(req.getAdditionalParameters());
                 switch (registrationId) {
                     case "google" -> params.put("prompt", "select_account");
-                    case "kakao"  -> params.put("prompt", "login");        // 또는 consent
+                    case "kakao"  -> params.put("prompt", "login");
                     case "naver"  -> params.put("auth_type", "reprompt");
                 }
                 return OAuth2AuthorizationRequest.from(req)
@@ -63,7 +61,6 @@ public class SecurityConfig {
             }
         };
 
-        // 실패해도 세션을 건드리지 않고 /login으로 보냄
         AuthenticationFailureHandler keepSessionFailure =
                 (request, response, exception) ->
                         response.sendRedirect("/login?error=" + exception.getClass().getSimpleName());
@@ -92,6 +89,5 @@ public class SecurityConfig {
                 );
 
         return http.build();
-
     }
 }
