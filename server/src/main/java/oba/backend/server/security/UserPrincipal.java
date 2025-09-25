@@ -13,10 +13,10 @@ import java.util.Map;
  */
 public class UserPrincipal implements OAuth2User, UserDetails {
 
-    private final String id;                    // "provider:providerUserId"
-    private final String email;                 // null 가능
+    private final String id;
+    private final String email;
     private final Map<String, Object> attributes;
-    private final String provider;              // google | kakao | naver
+    private final String provider;
 
     public UserPrincipal(String id, String email, Map<String, Object> attributes, String provider) {
         this.id = id;
@@ -83,5 +83,4 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }
