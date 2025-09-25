@@ -1,19 +1,21 @@
 package oba.backend.server.service;
 
-import oba.backend.server.domain.user.ProviderInfo;
-import oba.backend.server.domain.user.Role;
 import oba.backend.server.domain.user.User;
 import oba.backend.server.domain.user.UserRepository;
+import oba.backend.server.domain.user.ProviderInfo;
+import oba.backend.server.domain.user.Role;
 import oba.backend.server.security.CustomOAuth2UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -39,22 +41,22 @@ class CustomOAuth2UserServiceTest {
                 "picture", "http://test.com/profile.png"
         );
 
+        // 최소 ROLE_USER 권한 부여 (IllegalArgumentException 방지)
         OAuth2User oAuth2User = new DefaultOAuth2User(
-                null,
+                Set.of(new SimpleGrantedAuthority("ROLE_USER")),
                 attributes,
                 "sub"
         );
+        assertThat(oAuth2User.getAttributes().get("email")).isEqualTo("test@example.com");
 
         OAuth2UserRequest userRequest = mock(OAuth2UserRequest.class);
         var clientRegistration = TestOAuth2Utils.createClientRegistration("google");
         when(userRequest.getClientRegistration()).thenReturn(clientRegistration);
 
-        // super.loadUser() 부분만 대체
+        // super.loadUser() Mocking
         CustomOAuth2UserService service = new CustomOAuth2UserService(userRepository) {
             @Override
             public OAuth2User loadUser(OAuth2UserRequest ignored) {
-                // 원래 로직: super.loadUser -> attributes 파싱 -> save
-                // 여기서 super.loadUser 부분만 우리가 준비한 객체로 대체
                 String registrationId = "google";
 
                 String id = (String) attributes.get("sub");
