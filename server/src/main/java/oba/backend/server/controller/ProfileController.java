@@ -13,6 +13,5 @@ public class ProfileController {
         // GitHub에서 가져온 전체 프로필 JSON 반환
         // 예: { id: 123, login: "...", email: "...", ... }
         return user.getAttributes();
-
     }
 }
