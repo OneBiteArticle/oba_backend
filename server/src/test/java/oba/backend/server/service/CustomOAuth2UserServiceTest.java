@@ -1,9 +1,9 @@
 package oba.backend.server.service;
 
-import oba.backend.server.domain.user.User;
-import oba.backend.server.domain.user.UserRepository;
 import oba.backend.server.domain.user.ProviderInfo;
 import oba.backend.server.domain.user.Role;
+import oba.backend.server.domain.user.User;
+import oba.backend.server.domain.user.UserRepository;
 import oba.backend.server.security.CustomOAuth2UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,5 +92,4 @@ class CustomOAuth2UserServiceTest {
         assertThat(savedUser.getProvider()).isEqualTo(ProviderInfo.GOOGLE);
         assertThat(savedUser.getRole()).isEqualTo(Role.USER);
     }
-
 }
