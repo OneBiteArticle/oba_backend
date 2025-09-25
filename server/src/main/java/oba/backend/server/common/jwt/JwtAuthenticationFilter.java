@@ -2,55 +2,58 @@ package oba.backend.server.common.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
-    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
-    private static final Set<String> WHITELIST = Set.of(
-            "/", "/error", "/public/**", "/login", "/login.html",
-            "/oauth2/**", "/actuator/**", "/css/**", "/js/**", "/images/**"
-    );
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return WHITELIST.stream().anyMatch(p -> PATH_MATCHER.match(p, uri));
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // ✅ 1. Access Token 먼저 꺼내오기 (쿠키에서)
+        String token = resolveTokenFromCookies(request);
 
-        String header = request.getHeader("Authorization");
+        if (token != null && jwtProvider.validateToken(token)) {
+            var claims = jwtProvider.getClaims(token);
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-
-            if (jwtProvider.validate(token)) {
-                String subject = jwtProvider.getSubject(token);
-
-                var auth = new UsernamePasswordAuthenticationToken(
-                        subject, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                );
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            // ✅ 2. Refresh Token이면 인증 불가 → 그냥 다음 필터로
+            if ("refresh".equals(claims.get("type"))) {
+                filterChain.doFilter(request, response);
+                return;
             }
+
+            // ✅ 3. Access Token이면 SecurityContext에 인증정보 저장
+            Authentication authentication = jwtProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * AccessToken을 HttpOnly 쿠키에서 가져오기
+     */
+    private String resolveTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> "access_token".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }
