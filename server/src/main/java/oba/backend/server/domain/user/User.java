@@ -16,7 +16,7 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String identifier; // ✅ CustomOAuth2UserService 에서 사용
+    private String identifier;
 
     private String email;
     private String name;
@@ -30,7 +30,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
-    // ✅ 정보 업데이트 메서드 추가
     public void updateInfo(String email, String name, String picture) {
         this.email = email;
         this.name = name;
