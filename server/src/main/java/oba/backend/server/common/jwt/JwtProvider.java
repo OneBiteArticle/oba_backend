@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+
+// JWT 토큰을 생성하고, 검증하고, 인증 정보를 추출
 @Component
 public class JwtProvider {
 
@@ -23,7 +25,6 @@ public class JwtProvider {
     private final long accessTokenValidity;   // AccessToken 유효기간
     private final long refreshTokenValidity;  // RefreshToken 유효기간
 
-    // ✅ application.properties / 환경변수에서 값 주입
     public JwtProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration-ms:1800000}") long accessTokenValidity,
@@ -34,10 +35,11 @@ public class JwtProvider {
         this.refreshTokenValidity = refreshTokenValidity;
     }
 
-    // ✅ 토큰 생성 (Access, Refresh 동시 발급)
+    // 토큰 생성 (Access, Refresh 동시 발급)
     public TokenResponse generateToken(Authentication authentication) {
-        String accessToken = createToken(authentication.getName(), "access", accessTokenValidity);
-        String refreshToken = createToken(authentication.getName(), "refresh", refreshTokenValidity);
+        String userId = ((User) authentication.getPrincipal()).getUsername();
+        String accessToken = createToken(userId, "access", accessTokenValidity);
+        String refreshToken = createToken(userId, "refresh", refreshTokenValidity);
         return new TokenResponse(accessToken, refreshToken);
     }
 
@@ -54,29 +56,34 @@ public class JwtProvider {
                 .compact();
     }
 
-    // ✅ 토큰 검증
+    // JWT 토큰을 검증
     public boolean validateToken(String token) {
         try {
+
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
+
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    // ✅ Authentication 추출
+    // JWT 토큰에서 인증 정보를 추출하고, 이를 Spring Security의 Authentication 객체로 변환하여 반환
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
         String username = claims.getSubject();
+
         var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
         User principal = new User(username, "", authorities);
+
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    // ✅ Claims 가져오기
+    // Claims 가져오기
     public Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
