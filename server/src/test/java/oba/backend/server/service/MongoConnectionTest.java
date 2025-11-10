@@ -19,10 +19,10 @@ public class MongoConnectionTest {
     void testMongoConnection() {
         try {
             String dbName = mongoTemplate.getDb().getName();
-            System.out.println("✅ MongoDB 연결 성공: " + dbName);
+            System.out.println("MongoDB 연결 성공: " + dbName);
             assertThat(dbName).isEqualTo("OneBitArticle");
         } catch (Exception e) {
-            System.out.println("❌ MongoDB 연결 실패: " + e.getMessage());
+            System.out.println("MongoDB 연결 실패: " + e.getMessage());
             assertThat(e).isNull();
         }
     }
