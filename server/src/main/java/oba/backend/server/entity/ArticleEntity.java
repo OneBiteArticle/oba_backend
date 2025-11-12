@@ -1,26 +1,29 @@
 package oba.backend.server.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "articles")
 @Getter
 @Setter
-@Table(name = "articles")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ArticleEntity {
 
     @Id
-    @Column(name = "article_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
 
     private String title;
+    private String url;
     private String category;
     private String source;
-    private LocalDateTime createdAt;
+
+    @Builder.Default
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
 }
