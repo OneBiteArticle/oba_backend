@@ -8,7 +8,10 @@ import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "oba.backend.server.domain.mongo")
+@EnableMongoRepositories(basePackages = {
+        "oba.backend.server.domain.mongo",
+        "oba.backend.server.repository"
+})
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Value("${spring.data.mongodb.uri}")
