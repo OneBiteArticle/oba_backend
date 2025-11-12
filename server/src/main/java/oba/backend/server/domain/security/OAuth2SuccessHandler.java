@@ -1,4 +1,4 @@
-package oba.backend.server.security;
+package oba.backend.server.domain.security;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
