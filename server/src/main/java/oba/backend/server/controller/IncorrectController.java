@@ -1,13 +1,11 @@
 package oba.backend.server.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.domain.incorrect.IncorrectArticle;
-import oba.backend.server.domain.incorrect.IncorrectQuiz;
+import oba.backend.server.domain.incorrect.IncorrectQuizEntity;
 import oba.backend.server.service.IncorrectService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/incorrect")
@@ -16,25 +14,30 @@ public class IncorrectController {
 
     private final IncorrectService incorrectService;
 
-    @GetMapping("/{userId}/articles")
-    public List<IncorrectArticle> getUserIncorrectArticles(@PathVariable Long userId) {
-        return incorrectService.getUserIncorrectArticles(userId);
+    /**
+     * ✅ 특정 사용자의 오답 퀴즈 목록 조회
+     * @param userId 사용자 ID
+     * @return 해당 사용자의 오답 퀴즈 리스트
+     */
+    @GetMapping("/{userId}")
+    public List<IncorrectQuizEntity> getUserIncorrectQuizzes(@PathVariable Long userId) {
+        return incorrectService.getIncorrectQuizzesByUserId(userId);
     }
 
-    @GetMapping("/{userId}/quizzes")
-    public List<IncorrectQuiz> getUserIncorrectQuizzes(@PathVariable Long userId) {
-        return incorrectService.getUserIncorrectQuizzes(userId);
-    }
-
-    @PostMapping("/article")
-    public Map<String, Object> saveIncorrectArticle(@RequestBody IncorrectArticle article) {
-        incorrectService.saveIncorrectArticle(article);
-        return Map.of("result", "success", "type", "article");
-    }
-
-    @PostMapping("/quiz")
-    public Map<String, Object> saveIncorrectQuiz(@RequestBody IncorrectQuiz quiz) {
+    /**
+     * ✅ 오답 퀴즈 저장 (사용자가 틀린 문제 등록)
+     * @param quiz 오답 퀴즈 엔티티(JSON body로 받음)
+     */
+    @PostMapping
+    public void saveIncorrectQuiz(@RequestBody IncorrectQuizEntity quiz) {
         incorrectService.saveIncorrectQuiz(quiz);
-        return Map.of("result", "success", "type", "quiz");
+    }
+
+    /**
+     * ✅ 오답 퀴즈 전체 삭제 (테스트용, 관리자용)
+     */
+    @DeleteMapping("/all")
+    public void deleteAllIncorrectQuizzes() {
+        incorrectService.deleteAllIncorrectQuizzes();
     }
 }
