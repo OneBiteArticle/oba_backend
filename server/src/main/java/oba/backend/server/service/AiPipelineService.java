@@ -1,72 +1,36 @@
 package oba.backend.server.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.domain.mongo.SelectedArticleDocument;
-import oba.backend.server.repository.SelectedArticlesRepository;
-import oba.backend.server.dto.AiRequestDto;
 import oba.backend.server.dto.AiResponseDto;
+import oba.backend.server.repository.SelectedArticlesRepository;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-/**
- * ✅ AiPipelineService (MongoDB 중심)
- */
 @Service
 @RequiredArgsConstructor
 public class AiPipelineService {
 
+    private final WebClient webClient;
     private final SelectedArticlesRepository selectedArticlesRepository;
-    private final ObjectMapper objectMapper;
-    private final WebClient.Builder webClientBuilder;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String FASTAPI_URL = "http://oba_ai_service:8000/analyze";
+    @Value("${external.fastapi.url}")
+    private String fastApiUrl; // e.g., http://127.0.0.1:8000/analyze
 
-    public String processTodayArticles() {
-        String today = LocalDate.now().toString();
-        List<SelectedArticleDocument> articles = selectedArticlesRepository.findByServingDate(today);
+    public AiResponseDto analyzeArticle(ObjectId objectId) {
+        // 1️⃣ MongoDB에서 기사 조회
+        SelectedArticleDocument article = selectedArticlesRepository.findById(objectId)
+                .orElseThrow(() -> new RuntimeException("Article not found: " + objectId));
 
-        for (SelectedArticleDocument doc : articles) {
-            processSingleArticle(doc.getUrl(), doc.getArticleId());
-        }
-
-        return "✅ 오늘(" + today + ") 기사 분석 완료 (" + articles.size() + "건)";
-    }
-
-    public AiResponseDto processSingleArticle(String url, Long articleId) {
-        AiResponseDto aiResponse = callFastApi(url, articleId);
-        saveAIResultToMongo(articleId, aiResponse);
-        return aiResponse;
-    }
-
-    private void saveAIResultToMongo(Long articleId, AiResponseDto aiResult) {
-        SelectedArticleDocument doc = selectedArticlesRepository.findByArticleId(articleId);
-        if (doc == null) return;
-
-        doc.setAiSummary(aiResult.getSummary());
-        doc.setAiKeywords(aiResult.getKeywords());
-
-        // ✅ QuizItem → Map<String, Object> 변환
-        doc.setAiQuizzes(
-                aiResult.getQuizzes()
-                        .stream()
-                        .map(q -> objectMapper.convertValue(q, new TypeReference<Map<String, Object>>() {}))
-                        .toList()
-        );
-
-        selectedArticlesRepository.save(doc);
-    }
-
-    private AiResponseDto callFastApi(String url, Long articleId) {
-        return webClientBuilder.build()
-                .post()
-                .uri(FASTAPI_URL)
-                .bodyValue(new AiRequestDto(articleId, url))
+        // 2️⃣ FastAPI로 ObjectId 전달
+        return webClient.post()
+                .uri(fastApiUrl)
+                .bodyValue("{\"object_id\": \"" + objectId + "\"}")
                 .retrieve()
                 .bodyToMono(AiResponseDto.class)
                 .block();
