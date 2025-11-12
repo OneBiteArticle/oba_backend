@@ -1,14 +1,14 @@
 package oba.backend.server.dto.quiz;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class SubmitResultDto {
-    private int totalCnt;
-    private int correctCnt;
-    private int wrongCnt;
+    private String message;     // 결과 메시지
+    private int correctCount;   // 맞은 문제 수
+    private int totalCount;     // 전체 문제 수
 }
