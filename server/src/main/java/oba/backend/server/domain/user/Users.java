@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users", schema = "oba_backend")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,32 +14,27 @@ public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long id;
+    private Long userId;
 
-    @Column(nullable = false, unique = true)
     private String identifier;
-
     private String email;
     private String name;
     private String picture;
 
     @Enumerated(EnumType.STRING)
-    private ProviderInfo provider;
-
-    @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "created_at")
-    private java.time.LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private ProviderInfo provider;
 
-    @Column(name = "updated_at")
+    // ✅ 생성/수정일자 필드 (선택)
+    private java.time.LocalDateTime createdAt;
     private java.time.LocalDateTime updatedAt;
 
+    // ✅ [핵심] updateInfo() 메서드 추가
     public void updateInfo(String email, String name, String picture) {
-        this.email = email;
-        this.name = name;
-        this.picture = picture;
-        this.updatedAt = java.time.LocalDateTime.now();
+        if (email != null) this.email = email;
+        if (name != null) this.name = name;
+        if (picture != null) this.picture = picture;
     }
 }
