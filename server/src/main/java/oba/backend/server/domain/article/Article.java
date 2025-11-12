@@ -3,26 +3,17 @@ package oba.backend.server.domain.article;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 public class Article {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
 
     private String title;
+    private String category;
+    private String source;
 
     @Column(columnDefinition = "TEXT")
-    private String contentCol;
-
-    private LocalDateTime servingDate;
-
-    private String source;
+    private String summary;
 }
