@@ -1,4 +1,4 @@
-package oba.backend.server.security;
+package oba.backend.server.domain.security;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
