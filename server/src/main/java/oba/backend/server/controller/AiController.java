@@ -1,28 +1,26 @@
 package oba.backend.server.controller;
 
 import lombok.RequiredArgsConstructor;
-import oba.backend.server.dto.AiRequestDto;
 import oba.backend.server.dto.AiResponseDto;
-import oba.backend.server.service.AiService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import oba.backend.server.service.AiPipelineService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
 public class AiController {
 
-    private final AiService aiService;
+    private final AiPipelineService aiPipelineService;
 
-    @PostMapping("/analyze")
-    public AiResponseDto analyze(@RequestBody AiRequestDto request) {
-        return aiService.analyzeArticle(request);
+    // ✅ 오늘 날짜의 기사 AI 처리 요청
+    @PostMapping("/analyze/today")
+    public String analyzeTodayArticles() {
+        return aiPipelineService.processTodayArticles();
     }
 
-    @PostMapping("/generate_news_content")
-    public AiResponseDto generateContent(@RequestBody AiRequestDto request) {
-        return aiService.generateNewsContent(request);
+    // ✅ 개별 기사 URL 분석 요청
+    @PostMapping("/analyze")
+    public AiResponseDto analyzeSingle(@RequestParam String url, @RequestParam Long articleId) {
+        return aiPipelineService.processSingleArticle(url, articleId);
     }
 }
