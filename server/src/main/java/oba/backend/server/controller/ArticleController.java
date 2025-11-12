@@ -22,27 +22,28 @@ public class ArticleController {
     private final MongoTemplate mongoTemplate;
     private final ArticleRepository articleRepository;
 
-    // ✅ 1️⃣ 기사 상세 조회 (MySQL + MongoDB 통합)
+    /**
+     * ✅ 1️⃣ MySQL + MongoDB 통합 기사 상세 조회
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getArticle(@PathVariable("id") Long id) {
-        // 🧩 MySQL 기사 메타데이터 조회
+        // 🧩 MySQL 메타데이터 조회
         ArticleEntity article = articleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MySQL에 해당 기사가 없습니다."));
 
-        // 🧩 MongoDB 기사 본문 + 요약 조회
-        Query query = new Query(Criteria.where("article_id").is(id));
+        // 🧩 MongoDB 본문 조회 (mongoId 기반)
+        String mongoId = article.getMongoId();
+        Query query = new Query(Criteria.where("_id").is(new org.bson.types.ObjectId(mongoId)));
         Document doc = mongoTemplate.findOne(query, Document.class, "Selected_Articles");
 
         if (doc == null) {
             return ResponseEntity.status(404).body(Map.of("error", "MongoDB에 해당 기사 없음"));
         }
 
-        // 🧠 content_col: [ [문단1, 문단2, ...] ] 형태
+        // 🧠 content_col 평탄화
         List<List<String>> contentCol = (List<List<String>>) doc.get("content_col");
         List<String> flatContent = new ArrayList<>();
-        if (contentCol != null) {
-            contentCol.forEach(flatContent::addAll);
-        }
+        if (contentCol != null) contentCol.forEach(flatContent::addAll);
 
         // ✅ 통합 응답
         Map<String, Object> result = new HashMap<>();
@@ -57,13 +58,14 @@ public class ArticleController {
         result.put("aiSummary", doc.getString("summary"));
         result.put("aiKeywords", doc.get("keywords"));
         result.put("aiQuizzes", doc.get("quizzes"));
-        result.put("source", article.getSource());
         result.put("createdAt", article.getCreatedAt());
 
         return ResponseEntity.ok(result);
     }
 
-    // ✅ 2️⃣ 오늘 날짜 기준 기사 목록 조회 (MongoDB 기준)
+    /**
+     * ✅ 2️⃣ 오늘 날짜 기준 기사 목록 조회 (MongoDB 기준)
+     */
     @GetMapping("/today")
     public ResponseEntity<?> getTodayArticles(
             @RequestParam(value = "date", required = false)
@@ -78,11 +80,10 @@ public class ArticleController {
             return ResponseEntity.ok(Collections.emptyList());
         }
 
-        // ✅ 목록 응답 변환
         List<Map<String, Object>> result = new ArrayList<>();
         for (Document doc : docs) {
             Map<String, Object> item = new HashMap<>();
-            item.put("articleId", doc.get("article_id"));
+            item.put("mongoId", doc.getObjectId("_id").toString());
             item.put("title", doc.getString("title"));
             item.put("categoryName", doc.get("category_name"));
             item.put("publishTime", doc.getString("publish_time"));
