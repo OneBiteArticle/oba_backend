@@ -2,17 +2,19 @@ package oba.backend.server.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import oba.backend.server.entity.BaseEntity;
 
 @Entity
+@Table(name = "users", schema = "oba_backend")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User extends BaseEntity {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -23,16 +25,21 @@ public class User extends BaseEntity {
     private String picture;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ProviderInfo provider;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private java.time.LocalDateTime updatedAt;
 
     public void updateInfo(String email, String name, String picture) {
         this.email = email;
         this.name = name;
         this.picture = picture;
+        this.updatedAt = java.time.LocalDateTime.now();
     }
 }
