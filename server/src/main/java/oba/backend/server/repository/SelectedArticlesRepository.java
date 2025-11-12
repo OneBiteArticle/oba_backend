@@ -1,4 +1,4 @@
-package oba.backend.server.repository.mongo;
+package oba.backend.server.repository;
 
 import oba.backend.server.domain.mongo.SelectedArticleDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
