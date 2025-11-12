@@ -5,11 +5,12 @@ import oba.backend.server.entity.ArticleEntity;
 import oba.backend.server.repository.ArticleRepository;
 import oba.backend.server.domain.mongo.NewsResultRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 /**
  * ✅ QuizPipelineService
- * MongoDB + MySQL을 연결해 퀴즈 자동 생성 파이프라인 담당
+ * MySQL + MongoDB 연동하여 퀴즈 자동 생성 파이프라인 담당
  */
 @Service
 @RequiredArgsConstructor
@@ -26,13 +27,13 @@ public class QuizPipelineService {
         List<ArticleEntity> articles = articleRepository.findAll();
 
         if (articles.isEmpty()) {
-            System.out.println("⚠️ MySQL에 등록된 기사 없음 (MongoDB에서 가져올 수 없음)");
+            System.out.println("⚠️ MySQL에 등록된 기사 없음 (MongoDB ObjectId 연결 불가)");
             return;
         }
 
         for (ArticleEntity article : articles) {
             try {
-                System.out.println("🧩 퀴즈 생성 시작: " + article.getArticleId());
+                System.out.println("🧩 퀴즈 생성 시작: articleId=" + article.getArticleId() + ", mongoId=" + article.getMongoId());
                 quizService.generateQuizFromArticle(article);
                 System.out.println("✅ 퀴즈 생성 완료: " + article.getArticleId());
             } catch (Exception e) {
