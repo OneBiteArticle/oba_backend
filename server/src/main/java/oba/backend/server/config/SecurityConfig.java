@@ -1,9 +1,10 @@
 package oba.backend.server.config;
 
 import lombok.RequiredArgsConstructor;
+import oba.backend.server.domain.security.CustomAuthorizationRequestResolver;
+import oba.backend.server.domain.security.CustomOAuth2UserService;
 import oba.backend.server.domain.user.UserRepository;
-import oba.backend.server.security.CustomAuthorizationRequestResolver;
-import oba.backend.server.security.CustomOAuth2UserService;
+
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
