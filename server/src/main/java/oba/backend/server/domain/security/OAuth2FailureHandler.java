@@ -1,4 +1,4 @@
-package oba.backend.server.security;
+package oba.backend.server.domain.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
