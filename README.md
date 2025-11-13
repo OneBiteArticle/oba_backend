@@ -1,4 +1,3 @@
-
 # 📰 OBA Backend
 
 한입 기사(OBA: One Bite Article) 백엔드 레포지토리입니다.  
