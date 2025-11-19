@@ -24,19 +24,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        // ✅ 1. Access Token 먼저 꺼내오기 (쿠키에서)
+
+        // 1. Access Token 가져오기
         String token = resolveTokenFromCookies(request);
 
+        // 토큰이 존재하고 유효한 경우만 인증 처리
         if (token != null && jwtProvider.validateToken(token)) {
-            var claims = jwtProvider.getClaims(token);
 
-            // ✅ 2. Refresh Token이면 인증 불가 → 그냥 다음 필터로
-            if ("refresh".equals(claims.get("type"))) {
+            // 2. Refresh Token은 인증 불가 → 바로 다음 필터로
+            // RefreshToken은 access_token이 아닌 refresh_token 쿠키에 저장됨
+            if (isRefreshToken(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // ✅ 3. Access Token이면 SecurityContext에 인증정보 저장
+            // 3. Access Token이면 인증 객체 생성
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -44,9 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * AccessToken을 HttpOnly 쿠키에서 가져오기
-     */
+    private boolean isRefreshToken(HttpServletRequest request) {
+        if (request.getCookies() == null) return false;
+
+        return Arrays.stream(request.getCookies())
+                .anyMatch(cookie -> "refresh_token".equals(cookie.getName()));
+    }
+
     private String resolveTokenFromCookies(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
 
