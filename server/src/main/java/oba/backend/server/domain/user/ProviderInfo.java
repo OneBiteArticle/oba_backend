@@ -6,6 +6,14 @@ public enum ProviderInfo {
     NAVER;
 
     public static ProviderInfo from(String provider) {
-        return ProviderInfo.valueOf(provider.toUpperCase());
+        if (provider == null || provider.isBlank()) {
+            throw new IllegalArgumentException("provider must not be null or blank");
+        }
+
+        try {
+            return ProviderInfo.valueOf(provider.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unsupported provider: " + provider, e);
+        }
     }
 }
