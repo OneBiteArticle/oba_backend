@@ -9,7 +9,8 @@ import oba.backend.server.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class User extends BaseEntity {
+@Table(name = "users")
+public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
