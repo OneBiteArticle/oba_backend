@@ -1,4 +1,4 @@
-package oba.backend.server.security;
+package oba.backend.server.domain.security;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,8 +13,11 @@ import java.util.Map;
 public class UserPrincipal implements OAuth2User, UserDetails {
 
     private final String id;
+
     private final String email;
+
     private final Map<String, Object> attributes;
+
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(String id,
@@ -23,7 +26,6 @@ public class UserPrincipal implements OAuth2User, UserDetails {
                          Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
-        // ✅ null 방지 처리 (빈 컬렉션/맵으로 초기화)
         this.attributes = (attributes == null) ? Map.of() : Map.copyOf(attributes);
         this.authorities = (authorities == null) ? List.of() : List.copyOf(authorities);
     }
@@ -45,7 +47,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public String getPassword() {
-        return null; // 소셜 로그인 사용 시 패스워드 불필요
+        return null;
     }
 
     @Override

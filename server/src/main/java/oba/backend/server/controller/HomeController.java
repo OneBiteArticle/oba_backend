@@ -21,31 +21,36 @@ public class HomeController {
     public String login(@AuthenticationPrincipal OAuth2User user,
                         HttpServletResponse resp,
                         Model model) {
-        // 뒤로가기 캐시 방지(선택)
-        resp.setHeader("Cache-Control", "no-store, must-revalidate");
-        resp.setHeader("Pragma", "no-cache");
-        resp.setDateHeader("Expires", 0);
+        resp.setHeader("Cache-Control", "no-store, must-revalidate"); // 캐시 저장 금지
+        resp.setHeader("Pragma", "no-cache");                         // HTTP/1.0 캐시 무효화
+        resp.setDateHeader("Expires", 0);                             // 만료 시간 0으로 설정 (즉시 만료)
 
         boolean loggedIn = (user != null);
         model.addAttribute("loggedIn", loggedIn);
 
         if (loggedIn) {
             Map<String, Object> attrs = user.getAttributes();
+
             String name = null;
-            Object n = attrs.get("name");                     // google
+            Object n = attrs.get("name");
+
             if (n == null) {
-                Object kakaoAcc = attrs.get("kakao_account"); // kakao
-                if (kakaoAcc instanceof Map<?,?> kakao) {
+                Object kakaoAcc = attrs.get("kakao_account");
+                if (kakaoAcc instanceof Map<?, ?> kakao) {
                     Object profile = kakao.get("profile");
-                    if (profile instanceof Map<?,?> p) n = p.get("nickname");
+                    if (profile instanceof Map<?, ?> p) n = p.get("nickname");
                 }
             }
+
             if (n == null) {
-                Object naverResp = attrs.get("response");     // naver
-                if (naverResp instanceof Map<?,?> respMap) n = respMap.get("name");
+                Object naverResp = attrs.get("response");
+                if (naverResp instanceof Map<?, ?> respMap)
+                    n = respMap.get("name");
             }
+
             model.addAttribute("userName", n != null ? n.toString() : user.getName());
         }
+
         return "login";
     }
 }
