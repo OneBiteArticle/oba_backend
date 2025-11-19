@@ -5,6 +5,9 @@ import oba.backend.server.service.AiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/ai")
 @RequiredArgsConstructor
@@ -12,11 +15,11 @@ public class AiController {
 
     private final AiService aiService;
 
-    // 수동 실행 API (Postman 테스트용, 관리자용)
     @PostMapping("/generate/daily")
     public ResponseEntity<String> runDailyAi() {
-        System.out.println("[Spring] /ai/generate/daily 요청 들어옴");
+        log.info("[AI] /ai/generate/daily 요청 수신");
         String result = aiService.runDailyAiJob();
         return ResponseEntity.ok(result);
     }
 }
+
