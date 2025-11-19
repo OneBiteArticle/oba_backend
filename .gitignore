@@ -2,3 +2,4 @@
 application-local.properties
 .env
 
+.idea/
