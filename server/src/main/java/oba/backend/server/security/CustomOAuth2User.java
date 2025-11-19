@@ -3,15 +3,14 @@ package oba.backend.server.security;
 import lombok.RequiredArgsConstructor;
 import oba.backend.server.domain.user.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class CustomOAuth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User, UserDetails {
 
     private final User user;
     private final Map<String, Object> attributes;
@@ -21,23 +20,30 @@ public class CustomOAuth2User implements OAuth2User {
         return attributes;
     }
 
-    // 🔥 권한 반환 (ROLE_USER, ROLE_ADMIN 방식)
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-    }
-
+    // 기존 username = identifier
     @Override
     public String getName() {
-        return user.getName();
-    }
-
-    // 🔥 JWT 발급 시 식별자 반환
-    public String getIdentifier() {
         return user.getIdentifier();
     }
 
-    public User getUser() {
-        return user;
+    // 👍 USER role 꺼낼 수 있게 추가
+    public String getRole() {
+        return user.getRole().name(); // USER / ADMIN
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getRole().getAuthorities();
+    }
+
+    @Override
+    public String getPassword() { return null; }
+
+    @Override
+    public String getUsername() { return user.getIdentifier(); }
+
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
 }
