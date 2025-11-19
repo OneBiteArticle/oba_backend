@@ -10,17 +10,20 @@ import oba.backend.server.entity.BaseEntity;
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
-public class Users extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")   // ERD와 정확히 매핑
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String identifier; // ✅ CustomOAuth2UserService 에서 사용
+    private String identifier; // 예: "google:123456"
 
     private String email;
     private String name;
+
+    @Column(length = 512)
     private String picture;
 
     @Enumerated(EnumType.STRING)
@@ -31,7 +34,7 @@ public class Users extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
-    // ✅ 정보 업데이트 메서드 추가
+    /** 로그인 시 정보 업데이트 */
     public void updateInfo(String email, String name, String picture) {
         this.email = email;
         this.name = name;
