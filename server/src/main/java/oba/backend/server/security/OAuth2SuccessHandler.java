@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
@@ -22,9 +21,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             HttpServletResponse response,
             Authentication authentication) throws IOException {
 
+        // authentication 기반으로 JWT 만들기
         TokenResponse tokens = jwtProvider.generateToken(authentication);
 
-        // ✅ Refresh Token (7일, HttpOnly + Secure + SameSite)
+        // Refresh Token 쿠키 설정
         Cookie refreshCookie = new Cookie("refresh_token", tokens.refreshToken());
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
@@ -33,7 +33,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         refreshCookie.setAttribute("SameSite", "None");
         response.addCookie(refreshCookie);
 
-        // ✅ Access Token (30분, HttpOnly + Secure + SameSite)
+        // Access Token 쿠키 설정
         Cookie accessCookie = new Cookie("access_token", tokens.accessToken());
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true);
@@ -42,7 +42,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         accessCookie.setAttribute("SameSite", "None");
         response.addCookie(accessCookie);
 
-        // ✅ 리디렉트 시 토큰 전달 금지 → 상태만 표시
+        // 로그인 성공 페이지로 이동
         response.sendRedirect("/login?success=true");
     }
 }
