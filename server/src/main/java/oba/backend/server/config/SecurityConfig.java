@@ -1,4 +1,3 @@
-// SecurityConfig.java
 package oba.backend.server.config;
 
 import lombok.RequiredArgsConstructor;
@@ -31,8 +30,11 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(b -> b.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ai/**").permitAll()
+
                         .requestMatchers("/", "/login", "/error",
                                 "/oauth2/**", "/css/**", "/js/**", "/images/**", "/img/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(o -> o
