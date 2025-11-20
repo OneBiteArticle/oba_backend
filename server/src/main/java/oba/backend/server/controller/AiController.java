@@ -12,11 +12,15 @@ public class AiController {
 
     private final AiService aiService;
 
-    // 수동 실행 API (Postman 테스트용, 관리자용)
+    // 수동 실행 API (Postman/관리자 테스트용)
     @PostMapping("/generate/daily")
     public ResponseEntity<String> runDailyAi() {
-        System.out.println("/ai/generate/daily 요청 들어옴");
-        String result = aiService.runDailyAiJob();
+
+        System.out.println("▶ /ai/generate/daily 요청 들어옴");
+
+        // AiService의 실제 메서드 호출
+        String result = aiService.runDailyGptTask();
+
         return ResponseEntity.ok(result);
     }
 }
