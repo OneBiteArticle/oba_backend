@@ -11,11 +11,10 @@ public class AiService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // FastAPI 주소
-    private final String FASTAPI_URL = "http://localhost:8000/generate_daily_gpt_results";
+    // Docker Compose 내부 FastAPI 주소
+    private final String FASTAPI_URL = "http://ai_backend:8000/generate_daily_gpt_results";
 
-    // FastAPI 호출 로직
-    public String runDailyAiJob() {
+    public String runDailyGptTask() {
         System.out.println("[Spring] FastAPI 호출 시작 → " + FASTAPI_URL);
 
         ResponseEntity<String> response =
