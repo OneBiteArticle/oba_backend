@@ -4,7 +4,7 @@ import oba.backend.server.domain.user.User;
 import oba.backend.server.domain.user.UserRepository;
 import oba.backend.server.domain.user.ProviderInfo;
 import oba.backend.server.domain.user.Role;
-import oba.backend.server.security.CustomOAuth2UserService;
+import oba.backend.server.security.oauth.CustomOAuth2UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
