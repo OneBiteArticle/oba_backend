@@ -12,14 +12,14 @@ public class AiScheduler {
     private final AiService aiService;
 
     /**
-     * 매일 새벽 4시 자동 실행
+     * 매일 새벽 0시 자동 실행
      * cron 형식: 초 분 시 일 월 요일
-     * "0 0 4 * * *" = 매일 00:00:00
+     * "0 0 0 * * *" = 매일 00:00:00
      */
     @Scheduled(cron = "0 0 0 * * *")
     public void autoDailyGptUpdate() {
-        System.out.println("🔥 [SCHEDULER] Daily GPT Update 실행 시작");
+        System.out.println("[SCHEDULER] Daily GPT Update 실행 시작");
         String result = aiService.runDailyAiJob();
-        System.out.println("✅ [SCHEDULER] 실행 완료: " + result);
+        System.out.println("[SCHEDULER] 실행 완료: " + result);
     }
 }

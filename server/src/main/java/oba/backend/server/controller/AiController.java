@@ -15,7 +15,7 @@ public class AiController {
     // 수동 실행 API (Postman 테스트용, 관리자용)
     @PostMapping("/generate/daily")
     public ResponseEntity<String> runDailyAi() {
-        System.out.println("[Spring] /ai/generate/daily 요청 들어옴");
+        System.out.println("/ai/generate/daily 요청 들어옴");
         String result = aiService.runDailyAiJob();
         return ResponseEntity.ok(result);
     }
