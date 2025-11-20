@@ -1,4 +1,4 @@
-package oba.backend.server.domain.mysql;
+package oba.backend.server.entity.mysql;
 
 import jakarta.persistence.*;
 import lombok.Getter;
