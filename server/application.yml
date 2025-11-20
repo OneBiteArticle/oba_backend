@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: server
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://newdbinstance.cvewiy4wkmyb.ap-northeast-2.rds.amazonaws.com:3306/oba_backend?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: obaoba12
+
+  data:
+    mongodb:
+      uri: mongodb://ai_mongo:27017/OneBitArticle
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-ms: 1800000
+  refresh-token-expiration-ms: 604800000
+
+ai:
+  server:
+    url: http://ai_backend:8000
