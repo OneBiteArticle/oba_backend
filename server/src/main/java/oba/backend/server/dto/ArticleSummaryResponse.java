@@ -1,4 +1,4 @@
-package oba.backend.server.dto.response;
+package oba.backend.server.dto;
 
 import lombok.Builder;
 import lombok.Data;
